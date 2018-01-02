@@ -10,7 +10,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 setup(
     name='bitstamp',
 
-    version='0.6.1',
+    version='0.6.1_tps',
 
     description='Bitstamp Python API client',
     long_description=long_description,

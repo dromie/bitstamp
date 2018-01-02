@@ -194,74 +194,76 @@ class TestSignature(unittest.TestCase):
 # One should not run this test suite too many times, as they still use regular API calls and can still
 # cause a ban for 15 minutes.
 class TestUnsignedCalls(unittest.TestCase):
-	def setUp(self):
-		self.api_key = 'some api key'
-		self.secret = 'some secret'
-		self.customer_id = 'some customer id'
-		self.working_api = bitstamp.Bitstamp(api_key=self.api_key, secret=self.secret, customer_id=self.customer_id)
+  def setUp(self):
+    self.working_api = bitstamp.BitstampPublic()
 
-	def test_ticker(self):
-		# No real need to sort these, but to be sure we use the same ordering, we should use the same order function
-		expected_keys = sorted([
-			'timestamp',
-			'high',
-			'ask',
-			'last',
-			'low',
-			'open',
-			'bid',
-			'volume',
-			'vwap',
-		])
+  def test_ticker(self):
+# No real need to sort these, but to be sure we use the same ordering, we should use the same order function
+    expected_keys = sorted([
+    'timestamp',
+    'high',
+    'ask',
+    'last',
+    'low',
+    'open',
+    'bid',
+    'volume',
+    'vwap',
+    ])
 
-		for pair in bitstamp.ALL_PAIRS:
-			ticker_blob = self.working_api.ticker(currency=pair)
-			ticker_blob_parsed = self.working_api.ticker(parsed=True)
+    for pair in bitstamp.ALL_PAIRS:
+      ticker_blob = self.working_api.ticker(currency=pair)
+      ticker_blob_parsed = self.working_api.ticker(parsed=True)
 
-			self.assertIsNotNone(ticker_blob, msg='Result should not be none')
-			self.assertTrue(isinstance(ticker_blob, dict), msg='Result from this api call has to be a python dictionary (even if there\' an error on the SPI server)')
+      self.assertIsNotNone(ticker_blob, msg='Result should not be none')
+      self.assertTrue(isinstance(ticker_blob, dict), msg='Result from this api call has to be a python dictionary (even if there\' an error on the SPI server)')
 
-			keys = sorted(list(ticker_blob.keys()))
-			self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
+      keys = sorted(list(ticker_blob.keys()))
+      self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
 
-			# If we just return the parsed JSON from the API, all the values should be strings
-			# ADDENDUM: I have commented out this test in particular, because open parameter (open) is not of type string
-			# (for some reason)
-			# for key, value in ticker_blob.items():
-			# 	self.assertTrue(isinstance(value, str), msg='{} is not of type string, but should be'.format(key))
+# If we just return the parsed JSON from the API, all the values should be strings
+# ADDENDUM: I have commented out this test in particular, because open parameter (open) is not of type string
+# (for some reason)
+# for key, value in ticker_blob.items():
+# 	self.assertTrue(isinstance(value, str), msg='{} is not of type string, but should be'.format(key))
 
-			# If we parse the results' values, none of them should be strings
-			for key, value in ticker_blob_parsed.items():
-				self.assertFalse(isinstance(value, str), msg='{} is of type string, but should not be be'.format(key))
+# If we parse the results' values, none of them should be strings
+    for key, value in ticker_blob_parsed.items():
+      self.assertFalse(isinstance(value, str), msg='{} is of type string, but should not be be'.format(key))
 
 
-	def test_order_book(self):
-		# No real need to sort these, but to be sure we use the same ordering, we should use the same order function
-		expected_keys = sorted([
-			'timestamp',
-			'asks',
-			'bids',
-		])
+  def test_order_book(self):
+# No real need to sort these, but to be sure we use the same ordering, we should use the same order function
+    expected_keys = sorted([
+    'timestamp',
+    'asks',
+    'bids',
+    ])
 
-		for pair in bitstamp.ALL_PAIRS:
-			order_book = self.working_api.order_book(currency=pair)
+    for pair in bitstamp.ALL_PAIRS:
+      order_book = self.working_api.order_book(currency=pair)
 
-			self.assertIsNotNone(order_book, msg='Result should not be none')
-			self.assertTrue(isinstance(order_book, dict), msg='Result from this api call has to be a python dictionary (even if there\' an error on the SPI server)')
+      self.assertIsNotNone(order_book, msg='Result should not be none')
+      self.assertTrue(isinstance(order_book, dict), msg='Result from this api call has to be a python dictionary (even if there\' an error on the SPI server)')
 
-			keys = sorted(list(order_book.keys()))
-			self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
+      keys = sorted(list(order_book.keys()))
+      self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
 
-	def test_transactions(self):
-		# We don't need hour's worth of transactions to perform tests
-		for pair in bitstamp.ALL_PAIRS:
-			transactions = self.working_api.transactions(currency=pair, timespan='minute')
+  def test_transactions(self):
+# We don't need hour's worth of transactions to perform tests
+    for pair in bitstamp.ALL_PAIRS:
+      transactions = self.working_api.transactions(currency=pair, timespan='minute')
 
-			self.assertIsNotNone(transactions, msg='Result should not be none')
-			self.assertTrue(isinstance(transactions, list), msg='Result from this api call has to be a python list (even if there\' an error on the SPI server)')
+      self.assertIsNotNone(transactions, msg='Result should not be none')
+      self.assertTrue(isinstance(transactions, list), msg='Result from this api call has to be a python list (even if there\' an error on the SPI server)')
 
-	def tearDown(self):
-		pass
+  def test_trading_pairs(self):
+    tps = self.working_api.trading_pairs()
+    self.assertIsNotNone(tps, msg='Result should not be none')
+    print(tps)
+
+  def tearDown(self):
+    pass
 
 
 class TestSignedValidatedCalls(unittest.TestCase):
@@ -340,31 +342,34 @@ class TestSignedValidatedCalls(unittest.TestCase):
 # 		pass
 #
 #
-# class TestWebSocketsOrderBook(unittest.TestCase):
-# 	def setUp(self):
-# 		self.api_key = 'some api key'
-# 		self.secret = 'some secret'
-# 		self.customer_id = 'some customer id'
-# 		self.working_api = bitstamp.Bitstamp(api_key=self.api_key, secret=self.secret, customer_id=self.customer_id)
-#
-# 	def message_closure(self):
-# 		def test_message(message):
-# 			expected_keys = sorted([
-# 				'asks',
-# 				'bids',
-# 			])
-# 			keys = sorted(list(message.keys()))
-# 			self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
-# 			self.working_api.close_ws()
-#
-# 		return test_message
-#
-# 	def test_live_trades(self):
-# 		self.working_api.attach_ws(bitstamp.WS_CHANNEL_ORDER_BOOK, self.message_closure())
-#
-# 	def tearDown(self):
-# 		pass
-#
+class TestWebSocketsOrderBook(unittest.TestCase):
+  def setUp(self):
+    self.api_key = 'some api key'
+    self.secret = 'some secret'
+    self.customer_id = 'some customer id'
+    self.working_api = bitstamp.BitstampPublic()
+
+  def message_closure(self):
+    def test_message(message):
+      expected_keys = sorted([
+        'asks',
+        'bids',
+      ])
+      keys = sorted(list(message.keys()))
+      self.assertEqual(keys, expected_keys, msg='Expected keys don\'t match with the received ones')
+      self.working_api.close_ws()
+
+    return test_message
+
+  def test_order_book(self):
+    self.working_api.attach_ws(bitstamp.WS_CHANNEL_ORDER_BOOK, self.message_closure())
+
+  def test_order_book_xrp(self):
+    self.working_api.attach_ws(bitstamp.WS_CHANNEL_ORDER_BOOK, self.message_closure(),"xrpusd")
+
+  def tearDown(self):
+    pass
+
 #
 # class TestWebSocketsOrderBookDiff(unittest.TestCase):
 # 	def setUp(self):

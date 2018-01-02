@@ -5,7 +5,7 @@ from bitstamp import bitstamp
 
 
 def test_ticker():
-	api = bitstamp.Bitstamp('examples/config.py')
+	api = bitstamp.BitstampPublic()
 
 	while True:
 		print(api.ticker())
@@ -17,5 +17,9 @@ def test_order_book_ws():
 	def handle_message(message):
 		print(message)
 
-	api = bitstamp.Bitstamp('examples/config.py')
-	api.attach_ws(bitstamp.WS_CHANNEL_ORDER_BOOK, handle_message)
+	api = bitstamp.BitstampPublic()
+	api.attach_ws(bitstamp.WS_CHANNEL_ORDER_BOOK, handle_message,"xrpusd")
+
+
+test_order_book_ws()
+
